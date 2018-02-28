@@ -5,12 +5,18 @@ from serial import Serial
 
 #addr = "00:14:03:05:F1:F5"
 MAX_SPEED = 255
+DEAD_ZONE = 0.1
+
+def deadzone(raw_value):
+    if abs(raw_value) < DEAD_ZONE:
+        return 0
+    return raw_value
 
 def callback(msg):
-    turningRadius = -msg.axes[0]
+    turningRadius = -deadzone(msg.axes[0])
     sign = -1 if turningRadius < 0 else 1
     turningRadius = sign*(4.1-4*abs(turningRadius))
-    forwardVel = 255*msg.axes[1]
+    forwardVel = 255*deadzone(msg.axes[1])
     turningSpeed = 1 if abs(turningRadius) > 0 else 0
     turningSpeed = (MAX_SPEED-abs(forwardVel))*turningSpeed/4
     msg = b'%f, %f, %f' % (turningRadius, turningSpeed, forwardVel)

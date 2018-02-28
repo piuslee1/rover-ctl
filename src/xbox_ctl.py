@@ -28,7 +28,14 @@ def callback(msg):
     turningSpeed = (255*vel_mag-abs(forwardVel))/4
 
     #turningSpeed = 1 if abs(turningRadius) > 0 else 0
-    msg = b'%f,%f,%f,\n' % (turningRadius, turningSpeed, forwardVel)
+    # msg = b'%f,%f,%f,\n' % (turningRadius, turningSpeed, forwardVel)
+    if msg.buttons[1] == 1:
+        turningRadius = 1
+    elif msg.buttons[2] == 1:
+        turningRadius = -1
+    else:
+        turningRadius = 0;
+    msg = b'%f,%f,%f,\n' % (turningRadius, 0, forwardVel)
     print(msg)
     s.write(msg)
 

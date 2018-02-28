@@ -35,7 +35,7 @@ def callback(msg):
         turningRadius = -1
     else:
         turningRadius = 0;
-    msg = b'%f,%f,%f,\n' % (turningRadius, 0, forwardVel)
+    msg = b'%f,%f,%f,\n' % (turningRadius, msg.buttons[0], forwardVel)
     print(msg)
     s.write(msg)
 

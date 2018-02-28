@@ -2,10 +2,16 @@
 import rospy
 from sensor_msgs.msg import Joy
 from serial import Serial
+import time
 
 #addr = "00:14:03:05:F1:F5"
 MAX_SPEED = 255
 DEAD_ZONE = 0.1
+MSG_RATE  = 10 #in Hz
+
+MSG_PER = 1/MSG_RATE
+
+last_message_send = 0
 
 def deadzone(raw_value):
     if abs(raw_value) < DEAD_ZONE:
@@ -13,6 +19,10 @@ def deadzone(raw_value):
     return raw_value
 
 def callback(msg):
+    if time.time() - last_message_send < MSG_PER:
+        return
+    last_message_send = time.time()
+    
     turningRadius = -deadzone(msg.axes[0])
     sign = -1 if turningRadius < 0 else 1
     turningRadius = sign*(4.1-4*abs(turningRadius))
@@ -25,10 +35,8 @@ def callback(msg):
 
 def init():
     rospy.init_node("xbox_ctl", anonymous=True)
-    #s = Serial("/dev/rfcomm0", 9600)
     rospy.Subscriber("/joy", Joy, callback)
     rospy.spin()
-    #s.close()
 
 if __name__ == "__main__":
     init()

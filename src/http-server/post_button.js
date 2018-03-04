@@ -1,5 +1,6 @@
-function postFunction(){
-  var url = "http://100.80.225.75:8000";
+function postToServer(data){
+  //post to the server
+  var url = window.location.href;
   var method = "POST";
   var postData = "Some data";
 
@@ -34,7 +35,10 @@ function postFunction(){
   // Or... whatever
 
   // Actually sends the request to the server.
-  request.send(postData);
+  request.send(data);
 }
 
-document.getElementById("post_button").onclick = postFunction;
+function postBuilder(data){
+  return ()=>postToServer(data);
+}
+document.getElementById("post_button").onclick = postBuilder("lambda button");

@@ -17,10 +17,8 @@ def getHeading(pose):
     v1 = q.rotate([1, 0, 0])
     return math.atan2(v1[1], v1[0])
 
-def motorSpeedsToMsg(motorSpeeds):
-    msg = b'{},' * 6 + b'\n'
-    msg = msg.format(*motorSpeeds)
-    return msg
+def sendCommand(motorSpeeds):
+    pub.publish()
 
 class Rover:
     def __init__(self, maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed):
@@ -80,7 +78,7 @@ class Rover:
                     self.goal_pose = None
                     self.state = "idle"
 
-                serial.write(motorSpeedsToMsg(motorctl))
+                sendCommand(motorctl)
             else if self.state = "moving":
                 # check if heading is still correct, if not set state to turning
                 # else move the rover

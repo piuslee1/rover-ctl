@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rover-ctl)
+project(rover_ctl)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -10,6 +10,7 @@ project(rover-ctl)
 find_package(catkin REQUIRED COMPONENTS
   joy
   rospy
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -46,11 +47,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+ add_message_files(
+   FILES
+   MotorCMD.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -103,8 +103,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES rover-ctl
-#  CATKIN_DEPENDS joy rospy
+#  LIBRARIES rover_ctl
+  CATKIN_DEPENDS joy rospy message_runtime
 #  DEPENDS system_lib
 )
 
@@ -121,7 +121,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/rover-ctl.cpp
+#   src/${PROJECT_NAME}/rover_ctl.cpp
 # )
 
 ## Add cmake target dependencies of the library

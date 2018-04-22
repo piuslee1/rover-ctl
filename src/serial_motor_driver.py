@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from rover_ctl.serialMsg import MotorCMD
+from rover_ctl.msg import MotorCMD
 from serial import Serial
 import time, math
 

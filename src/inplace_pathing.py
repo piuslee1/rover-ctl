@@ -23,16 +23,16 @@ def getHeading(pose):
 
 class Rover:
     def __init__(self, maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed):
-        rospy.Subscriber("/intermediateGoal", PoseStamped, self.setGoalCallback)
-        rospy.Subscriber("/fusion/local_fusion/filtered", Odometry, self.update)
-        rospy.init_node("inplace_pathing", anonymous=True)
-        self.pub = rospy.Publisher("/motor_ctl", MotorCMD, queue_size=10)
         self.state = "idle" # "aiming" "moving" "finetuning"
         self.goal_pose = None
         self.maxSpeedAtDist = maxSpeedAtDist
         self.maxSpeedAtAngle = maxSpeedAtAngle
         self.minDriveSpeed = minDriveSpeed
         self.minTurningSpeed = minTurningSpeed
+        rospy.Subscriber("/move_base_simple/goal", PoseStamped, self.setGoalCallback)
+        rospy.Subscriber("/fusion/local_fusion/filtered", Odometry, self.update)
+        rospy.init_node("inplace_pathing", anonymous=True)
+        self.pub = rospy.Publisher("/motor_ctl", MotorCMD, queue_size=10)
         rospy.spin()
         """
         r = rospy.Rate(10)
@@ -54,7 +54,7 @@ class Rover:
         else:
             # Turn
             clipped = self.maxSpeedAtAngle if dist > self.maxSpeedAtAngle else dist
-            turnSpeed = (MAX_MOTOR_SPEED-self.minTurningSpeed)*math.exp(self.maxSpeedAtAngle-clipped) + self.minTurningSpeed
+            turnSpeed = (MAX_MOTOR_SPEED-self.minTurningSpeed)*math.exp(-self.maxSpeedAtAngle+clipped) + self.minTurningSpeed
             mul = 1 # Left side drives faster
             if current - angle < 0:
                 # Right side drives faster
@@ -64,16 +64,18 @@ class Rover:
     def drive(self, roverPose):
         current = getHeading(roverPose)
         dist = math.sqrt(
-                (roverPose.position.x - self.goal_pose.position.x)**2,
-                (roverPose.position.y - self.goal_pose.position.y)**2,
-                (roverPose.position.z - self.goal_pose.position.z)**2,
+                (roverPose.position.x - self.goal_pose.position.x)**2 +
+                (roverPose.position.y - self.goal_pose.position.y)**2 +
+                (roverPose.position.z - self.goal_pose.position.z)**2
             )
+        print(dist)
         if dist < POSITION_DEAD_BAND:
             return True, [0]*6
         else:
             # Turn
             clipped = self.maxSpeedAtDist if dist > self.maxSpeedAtDist else dist
-            driveSpeed = (MAX_MOTOR_SPEED-self.minDriveSpeed)*math.exp(self.maxSpeedAtDist-clipped) + self.minDriveSpeed
+            print(clipped)
+            driveSpeed = (MAX_MOTOR_SPEED-self.minDriveSpeed)*math.exp(-self.maxSpeedAtDist+clipped) + self.minDriveSpeed
             return False, [driveSpeed]*6
 
     def sendCommand(self, motorSpeeds):
@@ -82,8 +84,13 @@ class Rover:
         print(msg)
         self.pub.publish(msg)
 
-    def setGoalCallback(goalMsg):
+    def setGoalCallback(self, goalMsg):
         self.goal_pose = goalMsg.pose
+        self.setState("aiming")
+
+    def setState(self, state):
+        print("Reached state %s" % state)
+        self.state = state
 
     def update(self, msg):
         roverPose = msg.pose.pose
@@ -91,26 +98,35 @@ class Rover:
             goalHeading = self.calcGoalAngle(roverPose)
             if self.state == "aiming":
                 # Turn to desired heading
-                self.turnTo(desiredHeading)
-            elif self.state == "finetuning":
+                print(goalHeading)
+                print(getHeading(roverPose))
                 reached, motorctl = self.turnTo(goalHeading, roverPose)
                 if reached:
+                    self.setState("moving")
+                else:
+                    self.sendCommand(motorctl)
+            elif self.state == "finetuning":
+                reached, motorctl = self.turnTo(getHeading(self.goal_pose), roverPose)
+                if reached:
                     self.goal_pose = None
-                    self.state = "idle"
+                    self.setState("idle")
 
-                sendCommand(motorctl)
+                self.sendCommand(motorctl)
             elif self.state == "moving":
                 # check if heading is still correct, if not set state to turning
-                needToTurn, motorctl = self.turnTo(goalHeading, roverPose)
-                if needToTurn:
-                    sendCommand(motorctl)
+                headingCorrect, motorctl = self.turnTo(goalHeading, roverPose)
+                if not headingCorrect:
+                    self.sendCommand(motorctl)
                 else:
                     # drive
                     reached, motorctl = self.drive(roverPose)
                     if reached:
-                        self.state = "finetuning"
+                        self.setState("finetuning")
                     else:
-                        sendCommand(motorctl)
+                        self.sendCommand(motorctl)
+        else:
+            print("No goal")
 
 if __name__ == "__main__":
+    # maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed
     r =  Rover(10, math.pi/2, 30, 50)

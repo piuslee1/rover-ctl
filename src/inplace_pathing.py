@@ -12,9 +12,10 @@ from pyquaternion import Quaternion
 # Move to desired position
 # Turn to final direction
 
-MAX_MOTOR_SPEED = 255
+#MAX_MOTOR_SPEED = 255
+MAX_MOTOR_SPEED = 200
 HEADING_DEAD_BAND = math.pi/8
-POSITION_DEAD_BAND = 0.2 # m
+POSITION_DEAD_BAND = 1.0 # m
 
 def getHeading(pose):
     q = Quaternion(pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z)
@@ -129,4 +130,4 @@ class Rover:
 
 if __name__ == "__main__":
     # maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed
-    r =  Rover(10, math.pi/2, 30, 50)
+    r =  Rover(10, math.pi/2, 150, 100)

@@ -1,16 +1,20 @@
+#!/usr/bin/env python
 import rospy
 from std_msgs.msg import Bool
 
 pub = rospy.Publisher("/killswitch", Bool, queue_size=1)
+rospy.init_node("killswitch", anonymous=True)
 
 while not rospy.is_shutdown():
-    input("Press anything to stahp")
+    x = raw_input("Press anything to stahp; type stop to stop the program\n")
+    if x == "stop":
+        break
     msg = Bool()
     msg.data = True
     pub.publish(msg)
-    rospy.spinOnce()
-    input("Press anything to start")
+    x = raw_input("Press anything to start; type stop to stop the program\n")
+    if x == "stop":
+        break
     msg = Bool()
     msg.data = False
     pub.publish(msg)
-    rospy.spinOnce()

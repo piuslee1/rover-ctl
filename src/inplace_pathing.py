@@ -26,11 +26,16 @@ class Rover:
     def __init__(self, maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed):
         self.state = "idle" # "aiming" "moving" "finetuning"
         self.goal_pose = None
+        self.path = None
+        self.currentPose = None
+        self.goalReached = True
+        self.receivedPath = False
         self.maxSpeedAtDist = maxSpeedAtDist
         self.maxSpeedAtAngle = maxSpeedAtAngle
         self.minDriveSpeed = minDriveSpeed
         self.minTurningSpeed = minTurningSpeed
-        rospy.Subscriber("/move_base_simple/goal", PoseStamped, self.setGoalCallback)
+        #rospy.Subscriber("/move_base_simple/goal", PoseStamped, self.setGoalCallback)
+        rospy.Subscriber("trajectory", Path, self.setPath)
         rospy.Subscriber("/fusion/local_fusion/filtered", Odometry, self.update)
         rospy.init_node("inplace_pathing", anonymous=True)
         self.pub = rospy.Publisher("/motor_ctl", MotorCMD, queue_size=10)
@@ -45,7 +50,27 @@ class Rover:
 
     def calcGoalAngle(self, roverPose):
         return math.atan2(self.goal_pose.position.y - roverPose.position.y,
-                          self.goal_pose.position.x - roverPose.position.x)
+                self.goal_pose.position.x - roverPose.position.x)
+
+        def setPath(self, pathMsg):
+            if self.receivedPath == False:
+                self.path = pathMsg
+            i = 0;
+            j = 0;
+            dist = 0;
+            smallestDist = math.inf;
+            for k in self.path.poses:
+                i += 1
+                dist = math.sqrt(
+                        (self.currentPose.position.x - k.poisition.x)**2 +
+                        (self.currentPose.position.y - k.poisition.y)**2 +
+                        (self.currentPose.position.z - k.poisition.z)**2
+                        )
+                if dist < smallestDist:
+                    smallestDist = dist
+                    j = i
+            self.setGoalCallback(self, path.poses[j+1])
+
 
     def turnTo(self, angle, roverPose):
         current = getHeading(roverPose)
@@ -68,7 +93,7 @@ class Rover:
                 (roverPose.position.x - self.goal_pose.position.x)**2 +
                 (roverPose.position.y - self.goal_pose.position.y)**2 +
                 (roverPose.position.z - self.goal_pose.position.z)**2
-            )
+                )
         print(dist)
         if dist < POSITION_DEAD_BAND:
             return True, [0]*6
@@ -86,7 +111,7 @@ class Rover:
         self.pub.publish(msg)
 
     def setGoalCallback(self, goalMsg):
-        self.goal_pose = goalMsg.pose
+        self.goal_pose = goalMsg
         self.setState("aiming")
 
     def setState(self, state):
@@ -95,6 +120,7 @@ class Rover:
 
     def update(self, msg):
         roverPose = msg.pose.pose
+        self.currentPose = roverPose
         if self.goal_pose is not None:
             goalHeading = self.calcGoalAngle(roverPose)
             if self.state == "aiming":

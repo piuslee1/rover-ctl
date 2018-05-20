@@ -2,6 +2,7 @@
 import math, rospy
 from rover_ctl.msg import MotorCMD
 from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Path
 from nav_msgs.msg import Odometry
 from pyquaternion import Quaternion
 
@@ -12,8 +13,8 @@ from pyquaternion import Quaternion
 # Move to desired position
 # Turn to final direction
 
-#MAX_MOTOR_SPEED = 255
-MAX_MOTOR_SPEED = 200
+MAX_MOTOR_SPEED = 255
+#MAX_MOTOR_SPEED = 200
 HEADING_DEAD_BAND = math.pi/8
 POSITION_DEAD_BAND = 1.0 # m
 
@@ -52,24 +53,24 @@ class Rover:
         return math.atan2(self.goal_pose.position.y - roverPose.position.y,
                 self.goal_pose.position.x - roverPose.position.x)
 
-        def setPath(self, pathMsg):
-            if self.receivedPath == False:
-                self.path = pathMsg
-            i = 0;
-            j = 0;
-            dist = 0;
-            smallestDist = math.inf;
-            for k in self.path.poses:
-                i += 1
-                dist = math.sqrt(
-                        (self.currentPose.position.x - k.poisition.x)**2 +
-                        (self.currentPose.position.y - k.poisition.y)**2 +
-                        (self.currentPose.position.z - k.poisition.z)**2
-                        )
-                if dist < smallestDist:
-                    smallestDist = dist
-                    j = i
-            self.setGoalCallback(self, path.poses[j+1])
+    def setPath(self, pathMsg):
+        if self.receivedPath == False:
+            self.path = pathMsg
+        i = 0;
+        j = 0;
+        dist = 0;
+        smallestDist = 99999;
+        for k in self.path.poses:
+            i += 1
+            dist = math.sqrt(
+                    (self.currentPose.position.x - k.pose.position.x)**2 +
+                    (self.currentPose.position.y - k.pose.position.y)**2 +
+                    (self.currentPose.position.z - k.pose.position.z)**2
+                    )
+            if dist < smallestDist:
+                smallestDist = dist
+                j = i
+        self.setGoalCallback(self.path.poses[j+1].pose)
 
 
     def turnTo(self, angle, roverPose):
@@ -122,6 +123,7 @@ class Rover:
         roverPose = msg.pose.pose
         self.currentPose = roverPose
         if self.goal_pose is not None:
+            print("Got path")
             goalHeading = self.calcGoalAngle(roverPose)
             if self.state == "aiming":
                 # Turn to desired heading
@@ -151,8 +153,8 @@ class Rover:
                         self.setState("finetuning")
                     else:
                         self.sendCommand(motorctl)
-        else:
-            print("No goal")
+        #else:
+            #print("No goal")
 
 if __name__ == "__main__":
     # maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed

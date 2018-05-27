@@ -20,7 +20,7 @@ def grid_neighbors(coord):
     yield (x,y-1)
 
 def grid_index(grid,coord):
-    return grid[coord[0]][coord[1]]
+    return grid[coord[0],coord[1]]
 
 def grid_set(grid,coord,value):
     grid[coord[0]][coord[1]] = value
@@ -67,9 +67,9 @@ def grid_random_recursive(width,height,vals,weight,depth,neighbor_weight):
 def grid_contains(grid,coord):
     x = coord[0]
     y = coord[1]
-    if x < 0 or x >= len(grid):
+    if x < 0 or x >= grid.shape[0]:
         return False
-    if y < 0 or y >= len(grid[x]):
+    if y < 0 or y >= grid.shape[1]:
         return False
     return True
 
@@ -126,7 +126,7 @@ def get_quadrant(coord,center):
 def angle_to_center(coord,center):
     x = coord[0] - center[0]
     y = coord[1] - center[1]
-    angle = (atan2(y,x) + 2*pi) % pi
+    angle = (atan2(y,x) + 2*pi) % (2*pi)
     return angle
 
 def make_clockwise(center):

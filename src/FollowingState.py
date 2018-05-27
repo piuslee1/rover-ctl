@@ -94,7 +94,7 @@ class FollowingState (ControlState):
                 if reached:
                     self.goalPose = None
                     self.setState("idle")
-                    self.parent.switchTo("searching")
+                    self.parent.signal("reached")
 
                 self.sendCommand(motorctl)
             elif self.state == "moving":

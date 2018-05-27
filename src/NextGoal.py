@@ -9,8 +9,11 @@ class NextGoal:
 
     def attach(self):
         self.index += 1
-        self.pub.publish(poses[self.index])
-        self.parent.switchTo("following")
+        if self.index == len(self.poses):
+            self.parent.handleSignal("done")
+        else:
+            self.pub.publish(poses[self.index])
+            self.parent.handleSignal("set")
 
     def detach(self):
         return

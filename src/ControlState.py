@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import math, rospy
-from util import getHeading
 from rover_ctl.msg import MotorCMD
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry
@@ -26,14 +25,14 @@ class ControlState:
         self.minTurningSpeed = minTurningSpeed
         self.parent = None
 
-    def attach(self)
+    def attach(self):
         self.pub = rospy.Publisher("/motor_ctl", MotorCMD, queue_size=10)
 
     def detach(self):
         return
 
     # Get heading of pose
-    def getHeading(pose):
+    def getHeading(self, pose):
         q = Quaternion(pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z)
         v1 = q.rotate([1, 0, 0])
         return math.atan2(v1[1], v1[0])

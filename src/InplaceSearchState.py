@@ -1,6 +1,6 @@
 import math
-from util import getHeading
 from ControlState import ControlState
+from nav_msgs.msg import Odometry
 
 class InplaceSearchState(ControlState):
     def __init__(self, maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed):

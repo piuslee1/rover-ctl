@@ -10,8 +10,10 @@ from NextGoal import NextGoal
 # explore for tennis ball
 class StateMachine:
     # states: dict string->State
-    def __init__(self, states, initial):
+    def __init__(self, states, transitions, initial):
         self.current = states[initial]
+        self.states = states
+        self.transitions = transitions
         rospy.init_node("statemachine", anonymous=True)
         rospy.spin()
 
@@ -20,6 +22,10 @@ class StateMachine:
         self.current = states[state]
         self.current.attach()
         self.current.parent = self
+
+    def handleSignal(self, signal):
+        nextState = self.transitions[self.current.name+":"+signal]
+        self.switchTo(nextState)
 
 if __name__ == "__main__":
     firstPose = PoseStamped()
@@ -30,4 +36,12 @@ if __name__ == "__main__":
             "searching": InplaceSearchState(10, math.pi/2, 150, 100),
             "aggrosearch": InplaceSearchState(10, math.pi/2, 150, 100),
     }
-    s = StateMachine(states, "following")
+    stateTransitions = {
+            "nextGoal:set": "following",
+            "nextGoal:done": "waiting",
+            "following:reached": "searching",
+            "searching:found:far": "following",
+            "searching:found:close": "nextGoal",
+            "searching:notfound": "aggroSearch",
+    }
+    s = StateMachine(states, stateTransitions, "following")

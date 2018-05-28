@@ -24,10 +24,13 @@ class BlobSearchState(ControlState):
         self.odom_sub = rospy.Subscriber("/initialpose", PoseWithCovarianceStamped, self.update)
         self.map_sub = rospy.Subscriber("/occupancy_grid", OccupancyGrid, self.mapCallback)
         self.path_pub = rospy.Publisher("/path", Path, queue_size=2)
+        self.goal_pub = rospy.Publisher("/move_base_simple/goal", Path, queue_size=2)
 
     def detach(self):
         ControlState.detach(self)
         self.odom_sub.unregister()
+        self.map_sub.unregister()
+        self.received_map = False
 
     def mapCallback(self, map_msg):
         self.map = np.reshape(map_msg.data,
@@ -55,6 +58,10 @@ class BlobSearchState(ControlState):
                 pose.pose.position.x = leaf[1] * self.res + self.map_pose.position.x
                 path.poses.append(pose)
             self.path_pub.publish(path)
+            self.goal_pub.publish(path.poses[0])
+            self.parent.path = path
+            self.parent.blobSearch = True
+            self.parent.handleSignal("done")
 
 if __name__ == "__main__":
     a = BlobSearchState(10, math.pi/2, 150, 100)

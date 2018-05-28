@@ -159,7 +159,7 @@ def main():
     grid_set(test,start,start_loc)
     # grid_print(test)
 
-    block_reject =lambda v: (v == block_loc)
+    block_reject = lambda v: (v == block_loc)
 
     explored = set()
     leaves = set()

@@ -14,6 +14,8 @@ class StateMachine:
         self.current = states[initial]
         self.states = states
         self.transitions = transitions
+        self.path = None
+        self.blobSearch = False
         rospy.init_node("statemachine", anonymous=True)
         rospy.spin()
 
@@ -33,15 +35,25 @@ if __name__ == "__main__":
     states = {
             "nextGoal": NextGoal([firstPose, secondPose]),
             "following": FollowingState(10, math.pi/2, 150, 100),
+            "followingSearch": FollowingSearchState(10, math.pi/2, 150, 100),
             "searching": InplaceSearchState(10, math.pi/2, 150, 100),
-            "aggrosearch": InplaceSearchState(10, math.pi/2, 150, 100),
+            "blobsearch": BlobSearchState(10, math.pi/2, 150, 100),
     }
     stateTransitions = {
+            # Waypoint following
             "nextGoal:set": "following",
             "nextGoal:done": "waiting",
             "following:reached": "searching",
+            # Found goal
             "searching:found:far": "following",
             "searching:found:close": "nextGoal",
             "searching:notfound": "aggroSearch",
+            # Blob search loop
+            "blobsearch:done": "following",
+            "following:reachedPath": "followingSearch",
+            "followingSearch:reached": "blobsearch",
+            # Found goal
+            "followingSearch:found:far": "following",
+            "followingSearch:found:close": "nextGoal",
     }
     s = StateMachine(states, stateTransitions, "following")

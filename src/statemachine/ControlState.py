@@ -15,7 +15,7 @@ from pyquaternion import Quaternion
 MAX_MOTOR_SPEED = 255
 #MAX_MOTOR_SPEED = 200
 HEADING_DEAD_BAND = math.pi/8
-POSITION_DEAD_BAND = 1.0 # m
+POSITION_DEAD_BAND = 2.0 # m
 
 class ControlState:
     def __init__(self, maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed):

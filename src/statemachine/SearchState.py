@@ -6,6 +6,7 @@ ZED_FOV_H = math.pi/2
 class SearchState:
     def __init__(self, confidence_thres):
         self.confidence_thres = confidence_thres
+        self.notfound = 0
 
     def attach(self):
         self.im_sub = rospy.Subscriber("/zed/rgb/image_rect_color", Image, self.imageCallback)
@@ -20,10 +21,20 @@ class SearchState:
           print(e)
         cv2.imshow("IM", image)
         cv2.waitKey(1)
-        x, y = vision.detect(image)
-        ori = vision.calculateOrientation(x, image.shape[1], ZED_FOV_H)
-        self.foundCallback(ori)
+        x, y, conf, r = vision.detect(image)
+        if conf > self.confidence_thres:
+            ori, angle = vision.calculateOrientation(x, image.shape[1], ZED_FOV_H)
+            dist = vision.calcDist(2*r, image.shape[1], ZED_FOV_H)
+            self.notfound = 0
+            # Angle heading
+            self.foundCallback(ori, angle, dist)
+        else:
+            self.notfound += 1
+            self.notfoundCallback(self.notfound)
 
-    def foundCallback(self, orientation):
+    def notfoundCallback(self, count):
+        return
+
+    def foundCallback(self, orientation, angle, dist):
         print("Found object at "),
         print(orientation)

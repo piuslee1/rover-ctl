@@ -19,6 +19,8 @@ class BlobSearchState(ControlState):
         np.set_printoptions(linewidth=100)
 
     def attach(self):
+        self.parent.resetModes()
+        self.parent.blobSearch = True
         ControlState.attach(self)
         #self.odom_sub = rospy.Subscriber("/fusion/local_fusion/filtered", Odometry, self.update)
         self.odom_sub = rospy.Subscriber("/initialpose", PoseWithCovarianceStamped, self.update)

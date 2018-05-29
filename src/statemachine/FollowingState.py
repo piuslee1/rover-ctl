@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import math, rospy
+import math, rospy, time
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Path
 from nav_msgs.msg import Odometry
@@ -94,10 +94,7 @@ class FollowingState (ControlState):
                 if reached:
                     self.goalPose = None
                     self.setState("idle")
-                    if self.parent.blobSearch:
-                        self.parent.handleSignal("reachedPath")
-                    else:
-                        self.parent.handleSignal("reached")
+                    self.parent.handleSignal("reached")
 
                 self.sendCommand(motorctl)
             elif self.state == "moving":

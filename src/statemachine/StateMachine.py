@@ -11,25 +11,41 @@ from NextGoal import NextGoal
 class StateMachine:
     # states: dict string->State
     def __init__(self, states, transitions, initial):
-        self.current = states[initial]
+        self.current = None
         self.states = states
         self.transitions = transitions
         self.path = None
-        self.blobSearch = False
+        self.initial = initial
+        # Add names
+        for key in self.states:
+            self.states[key].name = key
         rospy.init_node("statemachine", anonymous=True)
-        rospy.spin()
 
     def switchTo(self, state):
-        self.current.detach()
+        print("Switching to %s mode" % state)
+        if not self.current is None:
+            self.current.detach()
         self.current = states[state]
         self.current.attach()
         self.current.parent = self
 
     def handleSignal(self, signal):
+        print("Recieved %s signal from %s state" % (signal, self.current.name))
         nextState = self.transitions[self.current.name+":"+signal]
+        if nextState[:4] == "exit":
+            self.parent.handleSignal(nextState[5:])
+            break
         self.switchTo(nextState)
 
+    def attach(self):
+        self.switchTo(initial)
+
+    def detach(self):
+        self.current.detach()
+        self.current = None
+
 if __name__ == "__main__":
+    # Blob search State
     firstPose = PoseStamped()
     secondPose = PoseStamped()
     states = {
@@ -54,6 +70,7 @@ if __name__ == "__main__":
             "followingSearch:reached": "blobsearch",
             # Found goal
             "followingSearch:found:far": "following",
+            "following:reachedBall": "searching",
             "followingSearch:found:close": "nextGoal",
     }
     s = StateMachine(states, stateTransitions, "following")

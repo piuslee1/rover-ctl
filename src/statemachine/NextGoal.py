@@ -17,3 +17,6 @@ class NextGoal:
 
     def detach(self):
         return
+
+    def addNextGoal(self, goal):
+        self.poses.insert(self.index, goal)

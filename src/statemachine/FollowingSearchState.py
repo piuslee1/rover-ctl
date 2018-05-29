@@ -19,9 +19,11 @@ HEADING_DEAD_BAND = math.pi/8
 POSITION_DEAD_BAND = 1.0 # m
 
 class FollowingSearchState (ControlState):
-    def __init__(self, maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed):
+    def __init__(self, confidence_thres,
+            maxSpeedAtDist, maxSpeedAtAngle, minDriveSpeed, minTurningSpeed):
         ControlState.__init__(self, maxSpeedAtDist,
                 maxSpeedAtAngle, minDriveSpeed, minTurningSpeed)
+        SearchState.__init__(self, confidence_thres)
         self.state = "idle" # "aiming" "moving" "finetuning"
         self.goalPose = None
         self.path = None
@@ -31,6 +33,7 @@ class FollowingSearchState (ControlState):
 
     def attach(self)
         ControlState.attach(self)
+        SearchState.attach(self)
         self.goalPose = None
         self.path = None
         self.currentPose = None
@@ -39,6 +42,14 @@ class FollowingSearchState (ControlState):
         self.odom_sub = rospy.Subscriber("/fusion/local_fusion/filtered", Odometry, self.update)
         self.pub = rospy.Publisher("/motor_ctl", MotorCMD, queue_size=10)
         self.setPath(self.parent.path)
+
+    def detach(self):
+        ControlState.detach(self)
+        SearchState.detach(self)
+        self.odom_sub.unregister()
+
+    def foundCallback(self, orientation, angle, dist):
+        self.parent.handleSignal("found")
 
     def setPath(self, pathMsg):
         i = 0;
@@ -56,10 +67,6 @@ class FollowingSearchState (ControlState):
                 smallestDist = dist
                 j = i
         self.setGoalCallback(self.path.poses[j+1].pose)
-
-    def detach(self):
-        ControlState.detach(self)
-        self.odom_sub.unregister()
 
     def calcGoalAngle(self, roverPose):
         return math.atan2(self.goalPose.position.y - roverPose.position.y,

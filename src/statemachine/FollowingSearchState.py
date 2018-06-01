@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 import math, rospy
-from geometry_msgs.msg import PoseStamped
-from nav_msgs.msg import Path
+from rover_ctl.msg import MotorCMD
 from nav_msgs.msg import Odometry
-from pyquaternion import Quaternion
 from ControlState import ControlState
+from SearchState import SearchState
 
 # Using ROS pose for things
 
@@ -31,7 +30,7 @@ class FollowingSearchState (ControlState):
         self.goalReached = True
         self.receivedPath = False
 
-    def attach(self)
+    def attach(self):
         ControlState.attach(self)
         SearchState.attach(self)
         self.goalPose = None

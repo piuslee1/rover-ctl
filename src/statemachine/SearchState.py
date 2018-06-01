@@ -1,5 +1,6 @@
-import vision, math, rospy
+import vision, math, rospy, cv2
 from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
 
 ZED_FOV_H = math.pi/2
 
@@ -7,6 +8,7 @@ class SearchState:
     def __init__(self, confidence_thres):
         self.confidence_thres = confidence_thres
         self.notfound = 0
+        self.bridge = CvBridge()
 
     def attach(self):
         self.im_sub = rospy.Subscriber("/zed/rgb/image_rect_color", Image, self.imageCallback)

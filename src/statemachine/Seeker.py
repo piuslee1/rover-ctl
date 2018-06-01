@@ -12,7 +12,6 @@ class Seeker(SearchState, ControlState):
                 maxSpeedAtAngle, minDriveSpeed, minTurningSpeed)
         SearchState.__init__(confidence_thres)
         self.goalTracker = goalTracker
-        self.dist_thres = dist_thres
         self.ball_pose = None
 
     def attach(self):
@@ -57,7 +56,7 @@ class Seeker(SearchState, ControlState):
             if reached:
                 self.parent.handleSignal("reached")
             else:
-                seld.sendCommand(motorcmd)
+                self.sendCommand(motorcmd)
 
     def notfoundCallback(self, count):
         if count > 100:

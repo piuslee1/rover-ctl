@@ -38,7 +38,7 @@ class ControlState:
         return math.atan2(v1[1], v1[0])
 
     def turnTo(self, angle, roverPose):
-        current = getHeading(roverPose)
+        current = self.getHeading(roverPose)
         dist = abs(current - angle)
         if dist < HEADING_DEAD_BAND:
             return True, [0]*6
@@ -53,11 +53,11 @@ class ControlState:
             return False, [mul*turnSpeed]*3 + [mul*-turnSpeed]*3
 
     def drive(self, roverPose, goalPose):
-        current = getHeading(roverPose)
+        current = self.getHeading(roverPose)
         dist = math.sqrt(
-                (roverPose.position.x - self.goalPose.position.x)**2 +
-                (roverPose.position.y - self.goalPose.position.y)**2 +
-                (roverPose.position.z - self.goalPose.position.z)**2
+                (roverPose.position.x - goalPose.position.x)**2 +
+                (roverPose.position.y - goalPose.position.y)**2 +
+                (roverPose.position.z - goalPose.position.z)**2
                 )
         if dist < POSITION_DEAD_BAND:
             return True, [0]*6

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import math, rospy, time
-from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Path
+from rover_ctl.msg import MotorCMD
 from nav_msgs.msg import Odometry
 from pyquaternion import Quaternion
 from ControlState import ControlState
@@ -29,7 +29,7 @@ class FollowingState (ControlState):
         self.goalReached = True
         self.receivedPath = False
 
-    def attach(self)
+    def attach(self):
         ControlState.attach(self)
         self.goalPose = None
         self.path = None

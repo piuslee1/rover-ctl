@@ -6,13 +6,14 @@ class NextGoal:
         self.index = -1
         self.poses = poses
         self.pub = rospy.Publisher("/move_base_simple/goal", PoseStamped, queue_size=10)
+        self.parent = None
 
     def attach(self):
         self.index += 1
         if self.index == len(self.poses):
             self.parent.handleSignal("done")
         else:
-            self.pub.publish(poses[self.index])
+            self.pub.publish(self.poses[self.index])
             self.parent.handleSignal("set")
 
     def detach(self):

@@ -1,4 +1,4 @@
-import math, vision
+import math, vision, rospy
 from ControlState import ControlState
 from SearchState import SearchState
 from nav_msgs.msg import Odometry
@@ -9,6 +9,7 @@ class InplaceSearchState(ControlState, SearchState):
         ControlState.__init__(self, maxSpeedAtDist,
                 maxSpeedAtAngle, minDriveSpeed, minTurningSpeed)
         SearchState.__init__(self, confidence_thres)
+        self.odom_sub = None
 
     def attach(self):
         ControlState.attach(self)
@@ -26,7 +27,7 @@ class InplaceSearchState(ControlState, SearchState):
             self.startAngle = self.getHeading(odom.pose)
             return
         # check if we have reached the end point
-        doTurn, cmd = self.turnTo(self, self.startAngle+2*math.pi, odom.pose)
+        doTurn, cmd = self.turnTo(self.startAngle+2*math.pi, odom.pose)
         if doTurn:
             self.sendCommand(cmd)
         else:

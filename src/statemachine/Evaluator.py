@@ -10,6 +10,7 @@ class Evalutor(SearchState):
         self.goalTracker = goalTracker
         self.dist_thres = dist_thres
         self.pose = None
+        self.parent = None
 
     def attach(self):
         SearchState.attach(self)
@@ -38,7 +39,7 @@ class Evalutor(SearchState):
             offset = newHeading.rotate([dist, 0, 0])
 
             goal = PoseStamped()
-            pose.header.frame_id = "map"
+            goal.header.frame_id = "map"
             goal.pose.position.x = offset[0] + self.pose.position.x
             goal.pose.position.y = offset[1] + self.pose.position.y
             goal.pose.position.z = offset[2] + self.pose.position.z

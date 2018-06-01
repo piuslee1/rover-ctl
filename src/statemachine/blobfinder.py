@@ -31,9 +31,9 @@ def grid_random(width,height,vals,weight):
     if range_vals < 0:
         raise ValueError("No values")
     grid = []
-    for i in xrange(0,width):
+    for i in xrange(0, width):
         grid.append([])
-        for j in xrange(0,height):
+        for j in xrange(0, height):
             val = 0 if randint(0,99) < weight else 1
             grid[i].append(vals[val])
     return grid
@@ -102,8 +102,7 @@ def find_blob(coords,grid,occ,neighbor_fn,reject_fn=None):
  
 
 def grid_print(grid):
-    print()
-    for row in grid:
+    print() for row in grid:
         for item in row:
             print(item,end="")
         print()

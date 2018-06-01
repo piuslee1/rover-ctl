@@ -1,8 +1,5 @@
 import rospy
-from FollowingState import FollowingState
-from InplaceSearchState import InplaceSearchState
 from geometry_msgs.msg import PoseStamped
-from NextGoal import NextGoal
 
 # States:
 # publish gps location of goal, follow path
@@ -16,6 +13,7 @@ class StateMachine:
         self.transitions = transitions
         self.path = None
         self.initial = initial
+        self.parent = None
         # Add names
         for key in self.states:
             self.states[key].name = key
@@ -34,43 +32,12 @@ class StateMachine:
         nextState = self.transitions[self.current.name+":"+signal]
         if nextState[:4] == "exit":
             self.parent.handleSignal(nextState[5:])
-            break
+            return
         self.switchTo(nextState)
 
     def attach(self):
-        self.switchTo(initial)
+        self.switchTo(self.initial)
 
     def detach(self):
         self.current.detach()
         self.current = None
-
-if __name__ == "__main__":
-    # Blob search State
-    firstPose = PoseStamped()
-    secondPose = PoseStamped()
-    states = {
-            "nextGoal": NextGoal([firstPose, secondPose]),
-            "following": FollowingState(10, math.pi/2, 150, 100),
-            "followingSearch": FollowingSearchState(10, math.pi/2, 150, 100),
-            "searching": InplaceSearchState(10, math.pi/2, 150, 100),
-            "blobsearch": BlobSearchState(10, math.pi/2, 150, 100),
-    }
-    stateTransitions = {
-            # Waypoint following
-            "nextGoal:set": "following",
-            "nextGoal:done": "waiting",
-            "following:reached": "searching",
-            # Found goal
-            "searching:found:far": "following",
-            "searching:found:close": "nextGoal",
-            "searching:notfound": "aggroSearch",
-            # Blob search loop
-            "blobsearch:done": "following",
-            "following:reachedPath": "followingSearch",
-            "followingSearch:reached": "blobsearch",
-            # Found goal
-            "followingSearch:found:far": "following",
-            "following:reachedBall": "searching",
-            "followingSearch:found:close": "nextGoal",
-    }
-    s = StateMachine(states, stateTransitions, "following")

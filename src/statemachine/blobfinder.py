@@ -3,6 +3,7 @@ from __future__ import print_function
 
 from random import randint
 from math import atan2,pi
+import math
 
 occ_loc     = "."
 unocc_loc   = "_"

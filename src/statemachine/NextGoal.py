@@ -7,7 +7,7 @@ class NextGoal:
         self.index = -1
         self.poses = poses
         self.pos_pub = rospy.Publisher("/move_base_simple/goal", PoseStamped, queue_size=10)
-        self.gps_pub = rospy.Publisher("/gps_goal", NavSatFix, queue_size=10)
+        self.gps_pub = rospy.Publisher("/gps_goal_fix", NavSatFix, queue_size=10)
         self.parent = None
 
     def attach(self):
@@ -15,10 +15,14 @@ class NextGoal:
         if self.index == len(self.poses):
             self.parent.handleSignal("done")
         else:
+            pose = self.poses[self.index]
+            pose.header.frame_id = "map"
             if isinstance(self.poses[self.index], PoseStamped):
-                self.pos_pub.publish(self.poses[self.index])
+                for i in range(5):
+                    self.pos_pub.publish(pose)
             else:
-                self.gps_pub.publish(self.poses[self.index])
+                for i in range(5):
+                    self.gps_pub.publish(pose)
             self.parent.handleSignal("set")
 
     def detach(self):

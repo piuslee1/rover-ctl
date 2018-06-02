@@ -29,6 +29,7 @@ class FollowingSearchState (ControlState):
         self.currentPose = None
         self.goalReached = True
         self.receivedPath = False
+        self.parent = None
 
     def attach(self):
         ControlState.attach(self)

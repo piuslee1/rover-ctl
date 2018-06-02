@@ -4,7 +4,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped
 from SearchState import SearchState
 
-class Evalutor(SearchState):
+class Evaluator(SearchState):
     def __init__(self, confidence_thres, dist_thres, goalTracker):
         SearchState.__init__(confidence_thres)
         self.goalTracker = goalTracker

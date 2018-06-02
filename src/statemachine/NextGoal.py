@@ -1,11 +1,13 @@
 import rospy
 from geometry_msgs.msg import PoseStamped
+from sensor_msgs.msg import NavSatFix
 
 class NextGoal:
     def __init__(self, poses):
         self.index = -1
         self.poses = poses
-        self.pub = rospy.Publisher("/move_base_simple/goal", PoseStamped, queue_size=10)
+        self.pos_pub = rospy.Publisher("/move_base_simple/goal", PoseStamped, queue_size=10)
+        self.gps_pub = rospy.Publisher("/gps_goal", NavSatFix, queue_size=10)
         self.parent = None
 
     def attach(self):
@@ -13,7 +15,10 @@ class NextGoal:
         if self.index == len(self.poses):
             self.parent.handleSignal("done")
         else:
-            self.pub.publish(self.poses[self.index])
+            if isinstance(self.poses[self.index], PoseStamped):
+                self.pos_pub.publish(self.poses[self.index])
+            else:
+                self.gps_pub.publish(self.poses[self.index])
             self.parent.handleSignal("set")
 
     def detach(self):

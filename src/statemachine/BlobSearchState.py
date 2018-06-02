@@ -16,6 +16,7 @@ class BlobSearchState(ControlState):
         ControlState.__init__(self, maxSpeedAtDist,
                 maxSpeedAtAngle, minDriveSpeed, minTurningSpeed)
         self.received_map = False
+        self.parent = None
         np.set_printoptions(linewidth=100)
 
     def attach(self):

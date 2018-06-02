@@ -25,6 +25,7 @@ class FollowingState (ControlState):
         self.state = "idle" # "aiming" "moving" "finetuning"
         self.goalPose = None
         self.path = None
+        self.parent = None
         self.currentPose = None
         self.goalReached = True
         self.receivedPath = False

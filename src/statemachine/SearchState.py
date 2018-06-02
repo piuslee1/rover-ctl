@@ -8,6 +8,7 @@ class SearchState:
     def __init__(self, confidence_thres):
         self.confidence_thres = confidence_thres
         self.notfound = 0
+        self.parent = None
         self.bridge = CvBridge()
 
     def attach(self):

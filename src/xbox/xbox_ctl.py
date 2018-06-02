@@ -14,6 +14,7 @@ class XBOX:
         rospy.Subscriber("/joy", Joy, self.callback)
         self.pub = rospy.Publisher("/motor_ctl", MotorCMD, queue_size=10)
         self.last_type = 0
+        self.arm = arm.Arm(20, math.pi/20)
         rospy.spin()
 
     def callback(self, msg):
@@ -33,7 +34,9 @@ class XBOX:
         if PUBLISH_ORDER[self.last_type] == "drill":
             self.pub.publish(drill.makeMsg(msg))
         if PUBLISH_ORDER[self.last_type] == "arm":
-            self.pub.publish(arm.makeMsg(msg))
+            for i in self.arm.makeMsg(msg):
+                self.pub.publish(i)
+                print(i)
         self.last_type = (self.last_type+1) % len(PUBLISH_ORDER)
 
 if __name__ == "__main__":

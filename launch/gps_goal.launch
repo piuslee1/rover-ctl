@@ -1,0 +1,24 @@
+<launch>
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}][${thread}][${node}/${function}:${line}]: ${message}"/>
+
+  <arg name="origin" default="MDRS"/>
+  <node pkg="swri_transform_util" type="initialize_origin.py" name="initialize_origin" output="screen">
+    <param name="local_xy_frame" value="/map"/>
+    <param name="local_xy_origin" value="$(arg origin)"/> <!-- setting "auto" here will set the origin to the first GPS fix that it recieves -->
+    <remap from="gps_goal_fix" to="gps_goal"/>
+    <remap from="local_xy_origin" to="/move_base_simple/goal"/>
+    <rosparam param="local_xy_origins">
+      [{ name: MDRS,
+         latitude: 38.40630,
+         longitude: -110.79201,
+         altitude: 0.0,
+         heading: 0.0},
+       { name: InnCubby,
+         latitude: 32.882112,
+         longitude: -117.2343985,
+         altitude: 0.0,
+         heading: 0.0}]
+    </rosparam>
+  </node>
+</launch>
+

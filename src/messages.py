@@ -1,3 +1,7 @@
+"""
+Encodes messages to be sent from ROS to Raspberry Pi
+"""
+
 import struct
 
 HASH_PRIME = 59359

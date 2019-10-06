@@ -147,23 +147,24 @@ class Arm:
             cmd = MotorCMD()
             cmd.type = "manual"
             cmd.data = [wrist_rot,
-                        hand, 
-                        threshold(wrist,-1,1),
-                        threshold(elbow,-0.1,0.1),
-                        threshold(shoulder,-0.1,0.1),
+                        hand,
+                        threshold(wrist, -1, 1),
+                        threshold(elbow, -0.1, 0.1),
+                        threshold(shoulder, -0.1, 0.1),
                         base]
             yield cmd
-            
+
 
         if STATES[self.state] in IVK_STATES:
             # Calculate inverse kinematics
-            for ik in self.solver.generate_path_to_point(self.joints,
-                    [self.pose.position.x, self.pose.position.y, self.pose.position.z], 
-                    [self.goal.position.x, self.goal.position.y, self.goal.position.z], 
+            for i in self.solver.generate_path_to_point(
+                    self.joints,
+                    [self.pose.position.x, self.pose.position.y, self.pose.position.z],
+                    [self.goal.position.x, self.goal.position.y, self.goal.position.z],
                     final_orientation=q*yaw*pitch*roll):
                 cmd = MotorCMD()
                 cmd.type = "arm"
-                cmd.data = ik
+                cmd.data = i
                 yield cmd
 
         if buttons["setup"]:

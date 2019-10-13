@@ -30,7 +30,7 @@ typedef struct {
   // unsigned char num_speeds;
   // unsigned char target_system; // ie drive, arm, drill
   uint32_t hash;
-  int32_t * speeds;
+  int32_t speeds[6];
 } __attribute__((packed)) Message;
 
 uint32_t hash_msg(Message * msg) {

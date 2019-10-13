@@ -51,6 +51,7 @@ void readSerial() {
   // Verify message
   Serial.print("Hash: ");
   Serial.println(msg->hash);
+  Serial.print("New Hash: ");
   Serial.println(hash_msg(msg));
   Serial.println(msg->speeds[0]);
   Serial.println(msg->speeds[1]);
@@ -58,7 +59,7 @@ void readSerial() {
   Serial.println(msg->speeds[3]);
   Serial.println(msg->speeds[4]);
   Serial.println(msg->speeds[5]);
-  if (msg->hash = hash_msg(msg) &&
+  if (msg->hash == hash_msg(msg) &&
       msg->target_system < SYSTEM_NUM &&
       msg->num_speeds == SYSTEM_MTR_NUMS[msg->target_system]) {
     set_goal_speeds(SYSTEMS[msg->target_system],

@@ -23,7 +23,6 @@ class Message:
         return (s + self.target_system * HASH_PRIME) % UINT_MAX
 
     def serialize(self):
-        print(self.hash)
         return struct.pack("<III{}".format('i'*len(self.speeds)),
                            len(self.speeds),
                            self.target_system,

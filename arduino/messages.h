@@ -25,11 +25,13 @@ typedef struct {
 } Motor;
 
 typedef struct {
-  unsigned char num_speeds;
-  unsigned char target_system; // ie drive, arm, drill
+  uint32_t num_speeds;
+  uint32_t target_system; // ie drive, arm, drill
+  // unsigned char num_speeds;
+  // unsigned char target_system; // ie drive, arm, drill
   uint32_t hash;
   int32_t * speeds;
-} Message;
+} __attribute__((packed)) Message;
 
 uint32_t hash_msg(Message * msg) {
   uint32_t sum = 0;

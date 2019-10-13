@@ -1,6 +1,7 @@
 from tkinter import *
 import tkinter as tk
 import serial, time
+import messages
 
 ser = serial.Serial("/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0", 115200)
 time.sleep(1)
@@ -20,9 +21,11 @@ def make_msg(speeds):
 
 def proc():
     speeds = [v.get(), 0, 0, h.get(), 0, 0]
-    cmd = "#0#{}\n".format(",".join([str(s) for s in speeds]))
-    print(cmd)
-    ser.write(bytes(cmd, "UTF-8"))
+    mess = messages.Message(messages.TARGET_SYSTEMS.DRIVE, speeds)
+    #  cmd = "#0#{}\n".format(",".join([str(s) for s in speeds]))
+    #  print(cmd)
+    #  ser.write(bytes(cmd, "UTF-8"))
+    ser.write(mess.serialize())
     print(ser.readline())
     root.after(200, proc)
 

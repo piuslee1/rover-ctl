@@ -1,7 +1,12 @@
 import struct
 
 HASH_PRIME = 59359
-UINT_MAX = 2**16
+UINT_MAX = 2**32
+
+class TARGET_SYSTEMS:
+    ARM = 2
+    DRILL = 2
+    DRIVE = 6
 
 class Message:
     # Target system is a number declared by this array
@@ -18,7 +23,8 @@ class Message:
         return (s + self.target_system * HASH_PRIME) % UINT_MAX
 
     def serialize(self):
-        return struct.pack("<ccI{}".format('i'*len(self.speeds)),
+        print(self.hash)
+        return struct.pack("<III{}".format('i'*len(self.speeds)),
                            len(self.speeds),
                            self.target_system,
                            self.hash,

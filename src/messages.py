@@ -1,3 +1,7 @@
+"""
+Encodes messages to be sent from ROS to Raspberry Pi
+"""
+
 import struct
 
 HASH_PRIME = 59359
@@ -11,9 +15,10 @@ class TARGET_SYSTEMS:
 class Message:
     # Target system is a number declared by this array
     # Motor * SYSTEMS[] = {DRIVE_SYSTEM, ARM_SYSTEM, DRILL_SYSTEM};
-    def __init__(self, target_system, speeds):
+    def __init__(self, target_system, speeds, serial_object):
         self.speeds = speeds
         self.target_system = target_system
+        self.send(serial_object)
 
     @property
     def hash(self):
@@ -28,6 +33,9 @@ class Message:
                            self.target_system,
                            self.hash,
                            *self.speeds)
+
+    def send(self, serial_object):
+        serial_object.write(self.serialize())
 
 """
 # For reference from messages.h

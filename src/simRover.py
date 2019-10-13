@@ -5,10 +5,13 @@ from rover_ctl.msg import MotorCMD
 from nav_msgs.msg import Odometry
 import numpy as np
 from pyquaternion import Quaternion
+import serial
 
 class Rover:
     def __init__(self):
         self.q = Quaternion(1, 0, 0, 0)
+        self.serial_object = serial.Serial('/dev/ttyACM0',115200, timeout = 1)
+
 
     def update(self, motor_cmd):
         print("HI")

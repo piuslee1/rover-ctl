@@ -8,17 +8,16 @@ HASH_PRIME = 59359
 UINT_MAX = 2**32
 
 class TARGET_SYSTEMS:
-    ARM = 2
+    ARM = 1
     DRILL = 2
-    DRIVE = 6
+    DRIVE = 0
 
 class Message:
     # Target system is a number declared by this array
     # Motor * SYSTEMS[] = {DRIVE_SYSTEM, ARM_SYSTEM, DRILL_SYSTEM};
-    def __init__(self, target_system, speeds, serial_object):
+    def __init__(self, target_system, speeds):
         self.speeds = speeds
         self.target_system = target_system
-        self.send(serial_object)
 
     @property
     def hash(self):
@@ -33,9 +32,6 @@ class Message:
                            self.target_system,
                            self.hash,
                            *self.speeds)
-
-    def send(self, serial_object):
-        serial_object.write(self.serialize())
 
 """
 # For reference from messages.h

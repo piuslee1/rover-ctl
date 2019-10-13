@@ -34,7 +34,8 @@ const int TIMEOUT_COUNTS = int(1000/float(LOOP_DELAY)) * TIMEOUT_DUR;
 const bool DEBUG = true;
 
 int timeout_cntr = 0;
-const int MSG_LENGTH = sizeof(Message)+5*sizeof(Motor)+10;
+/* const int MSG_LENGTH = sizeof(Message)+5*sizeof(Motor)+10; */
+const int MSG_LENGTH = sizeof(Message);
 char buf[MSG_LENGTH];
 
 void setup() {
@@ -53,12 +54,12 @@ void readSerial() {
   Serial.println(msg->hash);
   Serial.print("New Hash: ");
   Serial.println(hash_msg(msg));
-  Serial.println(msg->speeds[0]);
-  Serial.println(msg->speeds[1]);
-  Serial.println(msg->speeds[2]);
-  Serial.println(msg->speeds[3]);
-  Serial.println(msg->speeds[4]);
-  Serial.println(msg->speeds[5]);
+  /* Serial.println(msg->speeds[0]); */
+  /* Serial.println(msg->speeds[1]); */
+  /* Serial.println(msg->speeds[2]); */
+  /* Serial.println(msg->speeds[3]); */
+  /* Serial.println(msg->speeds[4]); */
+  /* Serial.println(msg->speeds[5]); */
   if (msg->hash == hash_msg(msg) &&
       msg->target_system < SYSTEM_NUM &&
       msg->num_speeds == SYSTEM_MTR_NUMS[msg->target_system]) {

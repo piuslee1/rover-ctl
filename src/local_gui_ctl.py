@@ -31,7 +31,8 @@ def proc():
     #  ser.write(bytes(cmd, "UTF-8"))
     ser.write(mess.serialize())
     #  print(ser.readline(ser.inWaiting()))
-    print(ser.readline())
+    while ser.in_waiting:
+        print(ser.readline())
     if buffer_count > CLEAR_BUFFER:
         ser.reset_input_buffer()
         ser.reset_output_buffer()

@@ -29,10 +29,11 @@ def proc():
     #  cmd = "#0#{}\n".format(",".join([str(s) for s in speeds]))
     #  print(cmd)
     #  ser.write(bytes(cmd, "UTF-8"))
-    ser.write(mess.serialize())
+    ser.write(b'a' + mess.serialize())
     #  print(ser.readline(ser.inWaiting()))
     while ser.in_waiting:
         print(ser.readline())
+    print("real hash: " +  str(mess.hash))
     if buffer_count > CLEAR_BUFFER:
         ser.reset_input_buffer()
         ser.reset_output_buffer()

@@ -35,6 +35,7 @@ const bool DEBUG = true;
 
 int timeout_cntr = 0;
 /* const int MSG_LENGTH = sizeof(Message)+5*sizeof(Motor)+10; */
+const int START_SEQ = 'a';
 const int MSG_LENGTH = sizeof(Message);
 char buf[MSG_LENGTH];
 
@@ -47,6 +48,11 @@ void setup() {
 }
 
 void readSerial() {
+  char validate[1];
+  do {
+    Serial.readBytes(validate, sizeof(char));
+  } while(validate[0] != START_SEQ);
+
   Serial.readBytes(buf, MSG_LENGTH);
   Message *msg = (Message*) buf;
   // Verify message

@@ -3,6 +3,7 @@ from tkinter import *
 import tkinter as tk
 import serial, time
 import messages
+import math
 
 from std_msgs.msg import Float64MultiArray
 
@@ -18,8 +19,11 @@ def dt_listener(msg):
     global buffer_count
     x = msg.data[0]
     y = msg.data[1]
-    left = y + x
-    right = y - x
+
+    left_max = max(abs((y + x) / math.sqrt(x**2 + y**2)), 1e-9) 
+    right_max = max(abs(y - x) / math.sqrt(x**2 + y**2), 1e-9) 
+    left = (y + x) / left_max 
+    right = (y - x) / right_max 
 
     speeds = [right, right, right, left, left, left]
     mess = messages.Message(messages.TARGET_SYSTEMS.DRIVE, speeds)

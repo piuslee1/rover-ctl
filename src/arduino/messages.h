@@ -9,16 +9,17 @@ const int32_t MAX_SPEED_CHANGE = 2;
 
 const int32_t UNCONNECTED = 11;
 const int32_t MTR_FR = 8;
-const int32_t MTR_MR = UNCONNECTED;
-const int32_t MTR_BR = 3;
+const int32_t MTR_MR = 4;
+const int32_t MTR_BR = 5;
 
-const int32_t MTR_FL = 4;
-const int32_t MTR_ML = UNCONNECTED;
-const int32_t MTR_BL = 6;
+const int32_t MTR_FL = 6;
+const int32_t MTR_ML = 2;
+const int32_t MTR_BL = 3;
 
 typedef struct {
   unsigned char pin;
   unsigned char max_speed;
+  int32_t bidirectional;
   int32_t goal_speed;
   int32_t current_speed;
   Servo handle;
@@ -75,11 +76,30 @@ void update_system(Motor * mtrs, int32_t num_mtrs) {
 void move(Motor * mtrs, int32_t num_mtrs, int32_t * val) {
   for (int32_t i=0; i<num_mtrs; i++) {
     val[i] = min(mtrs[i].max_speed, max(val[i], -mtrs[i].max_speed));
-    int32_t current_angle = int32_t(float(val[i])
-                / 255. * (MAX_ANGLE-MIN_ANGLE)/2
-                + (MAX_ANGLE-MIN_ANGLE)/2
-                + MIN_ANGLE); 
-    mtrs[i].handle.write(current_angle);
+
+    if(mtrs[i].bidirectional){
+      int32_t current_angle = int32_t(float(abs(val[i]))
+                  / 255. * (MAX_ANGLE-MIN_ANGLE)); 
+      mtrs[i].handle.write(current_angle);
+      
+      if(val[i] > 0){
+        digitalWrite(mtrs[i].pin + 1, 1);
+      }
+      else{
+        digitalWrite(mtrs[i].pin + 1, 0);
+      }
+
+    }
+
+    else{
+      int32_t current_angle = int32_t(float(val[i])
+                  / 255. * (MAX_ANGLE-MIN_ANGLE)/2
+                  + (MAX_ANGLE-MIN_ANGLE)/2
+                  + MIN_ANGLE); 
+      mtrs[i].handle.write(current_angle);
+
+    }
+
   }
 }
 

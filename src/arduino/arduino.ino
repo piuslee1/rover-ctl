@@ -15,12 +15,12 @@ Motor DRILL_SYSTEM[] = {
 
 int DRIVE_NUM = 6;
 Motor DRIVE_SYSTEM[] = {
-  {.pin = MTR_FR, .max_speed=80},
-  {.pin = MTR_MR, .max_speed=80},
-  {.pin = MTR_BR, .max_speed=80},
-  {.pin = MTR_FL, .max_speed=80},
-  {.pin = MTR_ML, .max_speed=80},
-  {.pin = MTR_BL, .max_speed=80},
+  {.pin = MTR_FR, .max_speed=80, .bidirectional=true},
+  {.pin = MTR_MR, .max_speed=80, .bidirectional=false},
+  {.pin = MTR_BR, .max_speed=80, .bidirectional=false},
+  {.pin = MTR_FL, .max_speed=80, .bidirectional=true},
+  {.pin = MTR_ML, .max_speed=80, .bidirectional=false},
+  {.pin = MTR_BL, .max_speed=80, .bidirectional=false},
 };
 
 Motor * SYSTEMS[] = {DRIVE_SYSTEM, ARM_SYSTEM, DRILL_SYSTEM};

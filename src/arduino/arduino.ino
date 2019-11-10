@@ -1,30 +1,26 @@
 #include "messages.h"
 // 1 for msg header, 2 bytes per a motor, 2 for hash
 
-int ARM_NUM = 2;
+int ARM_NUM = 0;
 Motor ARM_SYSTEM[] = {
-  {.pin = MTR_FR, .max_speed=40},
-  {.pin = MTR_FL, .max_speed=40},
 };
 
-int DRILL_NUM = 2;
+int DRILL_NUM = 0;
 Motor DRILL_SYSTEM[] = {
-  {.pin = MTR_FR, .max_speed=255},
-  {.pin = MTR_FL, .max_speed=255},
 };
 
 int DRIVE_NUM = 6;
 Motor DRIVE_SYSTEM[] = {
-  {.pin = MTR_FR, .max_speed=80, .bidirectional=true},
-  {.pin = MTR_MR, .max_speed=80, .bidirectional=false},
-  {.pin = MTR_BR, .max_speed=80, .bidirectional=false},
-  {.pin = MTR_FL, .max_speed=80, .bidirectional=true},
-  {.pin = MTR_ML, .max_speed=80, .bidirectional=false},
-  {.pin = MTR_BL, .max_speed=80, .bidirectional=false},
+  Motor(MTR_FR, 255, true, 0,0, Servo()),
+  Motor(MTR_MR, 255, false, 0,0, Servo()),
+  Motor(MTR_BR, 255, false, 0,0, Servo()),
+  Motor(MTR_FL, 255, true, 0,0, Servo()),
+  Motor(MTR_ML, 255, false, 0,0, Servo()),
+  Motor(MTR_BL, 255, false, 0,0, Servo()),
 };
 
 Motor * SYSTEMS[] = {DRIVE_SYSTEM, ARM_SYSTEM, DRILL_SYSTEM};
-int SYSTEM_MTR_NUMS[] = {6,2,2};
+int SYSTEM_MTR_NUMS[] = {6,0,0};
 int SYSTEM_NUM = 3;
 
 // Misc
@@ -43,6 +39,8 @@ void setup() {
   init_motors(DRIVE_SYSTEM, DRIVE_NUM);
   init_motors(DRILL_SYSTEM, DRILL_NUM);
   init_motors(ARM_SYSTEM, ARM_NUM);
+
+  DRIVE_SYSTEM[0].handle.write(40);
 
   Serial.begin(115200);
 }
@@ -87,11 +85,11 @@ bool serial_timeout() {
     if ((timeout_cntr + 1) == TIMEOUT_COUNTS) {
       Serial.println("Timeout");
     }
-    if ((timeout_cntr + 1) >= TIMEOUT_COUNTS) {
-      for (int i=0; i<3; i++) {
-        stop(SYSTEMS[i], SYSTEM_MTR_NUMS[i]);
-      }
-    }
+    // if ((timeout_cntr + 1) >= TIMEOUT_COUNTS) {
+    //   for (int i=0; i<3; i++) {
+    //     stop(SYSTEMS[i], SYSTEM_MTR_NUMS[i]);
+    //   }
+    // }
     timeout_cntr = min((timeout_cntr + 1), 2*TIMEOUT_COUNTS);
     return true;
   } else {

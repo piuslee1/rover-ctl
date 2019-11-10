@@ -8,22 +8,32 @@ const int32_t MAX_ANGLE = 150;
 const int32_t MAX_SPEED_CHANGE = 2;
 
 const int32_t UNCONNECTED = 11;
-const int32_t MTR_FR = 8;
-const int32_t MTR_MR = 4;
-const int32_t MTR_BR = 5;
+const unsigned char MTR_FR = 8;
+const unsigned char MTR_MR = 4;
+const unsigned char MTR_BR = 5;
 
-const int32_t MTR_FL = 6;
-const int32_t MTR_ML = 2;
-const int32_t MTR_BL = 3;
+const unsigned char MTR_FL = 6;
+const unsigned char MTR_ML = 2;
+const unsigned char MTR_BL = 3;
 
-typedef struct {
+
+struct Motor {
   unsigned char pin;
   unsigned char max_speed;
-  int32_t bidirectional;
+  bool bidirectional;
   int32_t goal_speed;
   int32_t current_speed;
   Servo handle;
-} Motor;
+
+  Motor(unsigned char pin, unsigned char max_speed, bool bidirectional, int32_t goal_speed, int32_t current_speed, Servo handle){
+    this->pin = pin;
+    this->max_speed = max_speed;
+    this->bidirectional = bidirectional;
+    this->goal_speed = goal_speed;
+    this->current_speed = current_speed;
+    this->handle = handle;
+  }
+};
 
 typedef struct {
   uint32_t num_speeds;
@@ -44,7 +54,6 @@ uint32_t hash_msg(Message * msg) {
 
 void init_motors(Motor * mtrs, int32_t num_mtrs) {
   for (int32_t i=0; i<num_mtrs; i++) {
-    mtrs[i].handle = Servo();
     mtrs[i].handle.attach(mtrs[i].pin);
     mtrs[i].goal_speed = 0;
     mtrs[i].current_speed = 0;
@@ -58,6 +67,36 @@ void set_goal_speeds(Motor * mtrs, int32_t num_mtrs, int32_t *val) {
   }
 }
 
+void write_motor(Motor * motor, int speed){
+  Serial.print("writing_motor: ");
+
+  if(motor->bidirectional){
+    int32_t current_angle = int32_t(float(abs(speed))
+                / 255. * (MAX_ANGLE-MIN_ANGLE)); 
+    motor->handle.write(current_angle);
+    Serial.print("BI DIRECTIONAL  ");
+    Serial.println(current_angle);
+
+    
+    if(speed > 0){
+      digitalWrite(motor->pin + 1, 1);
+    }
+    else{
+      digitalWrite(motor->pin + 1, 0);
+    }
+  }
+
+  else{
+    int32_t current_angle = int32_t(speed
+                / 255. * (MAX_ANGLE-MIN_ANGLE)
+                - (MAX_ANGLE-MIN_ANGLE)/2
+                + MIN_ANGLE); 
+    motor->handle.write(current_angle);
+    Serial.println(current_angle);
+  }
+}
+
+
 void update_system(Motor * mtrs, int32_t num_mtrs) {
   for (int32_t i=0; i<num_mtrs; i++) {
     int32_t difference = mtrs[i].goal_speed - mtrs[i].current_speed;
@@ -65,50 +104,19 @@ void update_system(Motor * mtrs, int32_t num_mtrs) {
     if(difference != 0){
       mtrs[i].current_speed += actual_movement * difference/abs(difference);
     }
-    int32_t current_angle = int32_t(float(mtrs[i].current_speed)
-                / 255. * (MAX_ANGLE-MIN_ANGLE)/2
-                + (MAX_ANGLE-MIN_ANGLE)/2
-                + MIN_ANGLE); 
-    mtrs[i].handle.write(current_angle);
+    write_motor(&mtrs[i], mtrs[i].goal_speed);
   }
 }
 
 void move(Motor * mtrs, int32_t num_mtrs, int32_t * val) {
-  for (int32_t i=0; i<num_mtrs; i++) {
-    val[i] = min(mtrs[i].max_speed, max(val[i], -mtrs[i].max_speed));
-
-    if(mtrs[i].bidirectional){
-      int32_t current_angle = int32_t(float(abs(val[i]))
-                  / 255. * (MAX_ANGLE-MIN_ANGLE)); 
-      mtrs[i].handle.write(current_angle);
-      
-      if(val[i] > 0){
-        digitalWrite(mtrs[i].pin + 1, 1);
-      }
-      else{
-        digitalWrite(mtrs[i].pin + 1, 0);
-      }
-
-    }
-
-    else{
-      int32_t current_angle = int32_t(float(val[i])
-                  / 255. * (MAX_ANGLE-MIN_ANGLE)/2
-                  + (MAX_ANGLE-MIN_ANGLE)/2
-                  + MIN_ANGLE); 
-      mtrs[i].handle.write(current_angle);
-
-    }
-
-  }
+  
 }
 
 void stop(Motor * mtrs, int32_t num_mtrs) {
   int32_t mtr_vals[num_mtrs];
   for (int32_t i=0; i<num_mtrs; i++) {
-    mtr_vals[i] = 0;
+    write_motor(&mtrs[i], 0);
   }
-  move(mtrs, num_mtrs, mtr_vals);
 }
 
 void calibrate(Motor * mtrs, int32_t num_mtrs) {
